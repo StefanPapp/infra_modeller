@@ -1,11 +1,24 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { authorize } from "@/lib/auth";
+import { authorize, isCrossSiteWrite } from "@/lib/auth";
 
 /**
  * HTTP Basic authentication for the whole app (pages and API routes) with one
- * shared credential from APP_USERNAME / APP_PASSWORD.
+ * shared credential from APP_USERNAME / APP_PASSWORD, plus a same-origin
+ * check on state-changing requests (browsers replay Basic credentials on
+ * cross-site requests, so auth alone does not stop CSRF).
  */
 export function proxy(request: NextRequest) {
+  if (
+    isCrossSiteWrite({
+      method: request.method,
+      host: request.headers.get("host"),
+      origin: request.headers.get("origin"),
+      secFetchSite: request.headers.get("sec-fetch-site"),
+    })
+  ) {
+    return new NextResponse("Cross-site request blocked", { status: 403 });
+  }
+
   const decision = authorize(
     request.headers.get("authorization"),
     {

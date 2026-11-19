@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { authorize } from "@/lib/auth";
+import { authorize, isCrossSiteWrite } from "@/lib/auth";
 
 const basic = (user: string, password: string) =>
   `Basic ${Buffer.from(`${user}:${password}`).toString("base64")}`;
@@ -48,5 +48,55 @@ describe("authorize", () => {
 
   it("still enforces a configured password in development", () => {
     expect(authorize(null, configured, false)).toBe("challenge");
+  });
+});
+
+describe("isCrossSiteWrite", () => {
+  const req = (
+    method: string,
+    headers: { origin?: string; secFetchSite?: string; host?: string } = {}
+  ) =>
+    isCrossSiteWrite({
+      method,
+      host: headers.host ?? "infra.example.com",
+      origin: headers.origin ?? null,
+      secFetchSite: headers.secFetchSite ?? null,
+    });
+
+  it("never blocks safe methods", () => {
+    for (const method of ["GET", "HEAD", "OPTIONS"]) {
+      expect(
+        req(method, { origin: "https://evil.example", secFetchSite: "cross-site" })
+      ).toBe(false);
+    }
+  });
+
+  it("allows same-origin writes", () => {
+    expect(req("POST", { secFetchSite: "same-origin" })).toBe(false);
+    expect(req("POST", { origin: "https://infra.example.com" })).toBe(false);
+    expect(
+      req("DELETE", { origin: "http://localhost:3000", host: "localhost:3000" })
+    ).toBe(false);
+  });
+
+  it("blocks cross-site and same-site-but-different-origin writes", () => {
+    expect(req("POST", { secFetchSite: "cross-site" })).toBe(true);
+    expect(req("POST", { secFetchSite: "same-site" })).toBe(true);
+    expect(req("POST", { origin: "https://evil.example" })).toBe(true);
+    expect(req("DELETE", { origin: "https://infra.example.com.evil.example" })).toBe(true);
+    expect(req("POST", { origin: "null" })).toBe(true);
+    expect(
+      req("POST", { origin: "http://localhost:4000", host: "localhost:3000" })
+    ).toBe(true);
+  });
+
+  it("trusts Sec-Fetch-Site over a matching Origin", () => {
+    expect(
+      req("POST", { secFetchSite: "cross-site", origin: "https://infra.example.com" })
+    ).toBe(true);
+  });
+
+  it("allows non-browser clients that send neither header", () => {
+    expect(req("POST")).toBe(false);
   });
 });

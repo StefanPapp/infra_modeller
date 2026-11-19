@@ -36,3 +36,32 @@ export function authorize(
   const passwordOk = safeEqual(decoded.slice(separator + 1), config.password);
   return userOk && passwordOk ? "ok" : "challenge";
 }
+
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+/**
+ * CSRF guard. Browsers attach cached Basic credentials to cross-site
+ * requests, so state-changing requests must come from our own origin.
+ * Clients that send neither Sec-Fetch-Site nor Origin are not browsers and
+ * cannot be driven by a third-party page, so they are let through.
+ */
+export function isCrossSiteWrite(request: {
+  method: string;
+  host: string | null;
+  origin: string | null;
+  secFetchSite: string | null;
+}): boolean {
+  if (SAFE_METHODS.has(request.method.toUpperCase())) return false;
+
+  if (request.secFetchSite !== null) {
+    return request.secFetchSite !== "same-origin";
+  }
+  if (request.origin !== null) {
+    try {
+      return new URL(request.origin).host !== request.host;
+    } catch {
+      return true;
+    }
+  }
+  return false;
+}
