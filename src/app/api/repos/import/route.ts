@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     }
     console.error("repository import failed", err);
     return NextResponse.json(
-      { error: "Repository import failed. Check ANTHROPIC_API_KEY and server logs." },
+      { error: "Repository import failed. Check the AI provider API key and server logs." },
       { status: 500 }
     );
   }

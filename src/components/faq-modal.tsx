@@ -21,7 +21,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "How does reading a repository work?",
-    a: "Click \"Import repository\" (or paste a GitHub URL into the chat). The app fetches infrastructure-relevant files via the GitHub API - docker-compose, Terraform, Kubernetes manifests, Dockerfiles, package manifests, CI config - and Claude extracts components and connections from them. Components that already exist by name are reused, so several repositories merge into one map.",
+    a: "Click \"Import repository\" (or paste a GitHub URL into the chat). The app fetches infrastructure-relevant files via the GitHub API - docker-compose, Terraform, Kubernetes manifests, Dockerfiles, package manifests, CI config - and the configured LLM (Gemini or Claude) extracts components and connections from them. Components that already exist by name are reused, so several repositories merge into one map.",
   },
   {
     q: "Which files are read from a repository?",
