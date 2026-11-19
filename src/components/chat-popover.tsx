@@ -194,7 +194,7 @@ export function ChatPopover({ onModelChanged }: ChatPopoverProps) {
                 </div>
               </div>
             ))}
-            {status === "submitted" && (
+            {isBusy && (
               <p className="text-xs text-[#666]">Thinking…</p>
             )}
             {error && (

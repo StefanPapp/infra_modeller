@@ -31,6 +31,7 @@ import { CRITICALITIES, STATUSES } from "@/lib/types";
 export const maxDuration = 300;
 
 const MAX_MODEL_LINES = 400;
+const CHAT_TIMEOUT_MS = 120_000;
 
 const BASE_PROMPT = `You are the assistant for Infra Modeller — an interactive map of an organisation's IT infrastructure: services, frontends, databases, queues, caches, gateways, external SaaS, CI/CD and platforms, plus the directed connections between them.
 
@@ -327,6 +328,8 @@ export async function POST(req: Request) {
       }),
     },
     stopWhen: stepCountIs(12),
+    // A stalled provider must surface as an error, not an endless spinner.
+    abortSignal: AbortSignal.timeout(CHAT_TIMEOUT_MS),
   });
 
   return result.toUIMessageStreamResponse();

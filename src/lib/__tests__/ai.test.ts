@@ -5,7 +5,7 @@ describe("resolveModel", () => {
   it("uses Gemini when a Google API key is configured", () => {
     expect(resolveModel({ GOOGLE_GENERATIVE_AI_API_KEY: "g" })).toEqual({
       provider: "google",
-      modelId: "gemini-flash-latest",
+      modelId: "gemini-2.5-flash",
     });
   });
 
@@ -33,8 +33,8 @@ describe("resolveModel", () => {
       })
     ).toEqual({ provider: "anthropic", modelId: "claude-opus-5-5" });
     expect(
-      resolveModel({ AI_PROVIDER: "google", GEMINI_MODEL: "gemini-2.5-flash" })
-    ).toEqual({ provider: "google", modelId: "gemini-2.5-flash" });
+      resolveModel({ AI_PROVIDER: "google", GEMINI_MODEL: "gemini-3.5-flash" })
+    ).toEqual({ provider: "google", modelId: "gemini-3.5-flash" });
   });
 
   it("rejects an unknown provider", () => {
