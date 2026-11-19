@@ -1,0 +1,38 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { authorize } from "@/lib/auth";
+
+/**
+ * HTTP Basic authentication for the whole app (pages and API routes) with one
+ * shared credential from APP_USERNAME / APP_PASSWORD.
+ */
+export function proxy(request: NextRequest) {
+  const decision = authorize(
+    request.headers.get("authorization"),
+    {
+      username: process.env.APP_USERNAME || "admin",
+      password: process.env.APP_PASSWORD,
+    },
+    process.env.NODE_ENV === "production"
+  );
+
+  if (decision === "ok") return NextResponse.next();
+
+  if (decision === "unconfigured") {
+    return new NextResponse(
+      "Authentication is not configured. Set APP_PASSWORD.",
+      { status: 503 }
+    );
+  }
+
+  return new NextResponse("Authentication required", {
+    status: 401,
+    headers: {
+      "WWW-Authenticate": 'Basic realm="Infra Modeller", charset="UTF-8"',
+    },
+  });
+}
+
+export const config = {
+  // Everything except Next's static assets.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};
