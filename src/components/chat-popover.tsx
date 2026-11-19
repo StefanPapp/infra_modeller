@@ -199,8 +199,8 @@ export function ChatPopover({ onModelChanged }: ChatPopoverProps) {
             )}
             {error && (
               <div className="px-3 py-2 rounded-lg text-xs bg-[#ef4444]/15 text-[#ef4444] border border-[#ef4444]/30">
-                The assistant failed to respond. Check ANTHROPIC_API_KEY and
-                try again.
+                The assistant failed to respond. Check the AI provider API key
+                and try again.
               </div>
             )}
             <div ref={messagesEndRef} />

@@ -2,7 +2,7 @@ import { getModel } from "../ai";
 import { fetchRepoSnapshot } from "./github";
 import type { ImportRepositoryDeps } from "./import";
 
-/** Production wiring: live GitHub API (optionally authenticated) and the configured Claude model. */
+/** Production wiring: live GitHub API (optionally authenticated) and the configured LLM. */
 export function defaultImportDeps(): ImportRepositoryDeps {
   return {
     fetchSnapshot: (ref) =>

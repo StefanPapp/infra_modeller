@@ -47,3 +47,4 @@ db/*.db
 
 # tool output
 .playwright-mcp/
+.env*.local

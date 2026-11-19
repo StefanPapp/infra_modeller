@@ -13,7 +13,7 @@ connections.
   (`calls`, `reads/writes`, `publishes to`, ...) and an optional protocol.
   Create and remove them from the detail panel or through the chat.
 - **Repository import** - give a GitHub URL; the server fetches
-  infrastructure-relevant files through the GitHub API and Claude extracts
+  infrastructure-relevant files through the GitHub API and an LLM extracts
   components and connections. Components that already exist by name are
   reused, so several repositories merge into one model.
 - **Assistant** - a chatbot that answers questions about the model and edits
@@ -25,7 +25,7 @@ connections.
 
 ```bash
 bun install
-cp .env.example .env.local   # fill in ANTHROPIC_API_KEY at least
+cp .env.example .env.local   # fill in an LLM key at least
 bun dev
 ```
 
@@ -35,7 +35,10 @@ reset on restart. Production requires `DATABASE_URL`.
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | yes | Chat and repository extraction |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | one of the two | Gemini for chat and repository extraction (used when set) |
+| `ANTHROPIC_API_KEY` | one of the two | Claude, used when no Google key is set |
+| `AI_PROVIDER` | no | Force `google` or `anthropic` |
+| `GEMINI_MODEL` | no | Model override (default `gemini-flash-latest`) |
 | `APP_PASSWORD` | production | Shared login password (HTTP Basic auth) |
 | `APP_USERNAME` | no | Login user name (default `admin`) |
 | `DATABASE_URL` | production | Postgres (Neon) connection string |
@@ -65,12 +68,14 @@ bun run build       # production build
 3. Files that typically hold credentials are never downloaded: `.env*`
    (except templates), `*.tfvars`, Terraform state, key material, and any
    path containing `secret` or `credential`.
-4. `extractInfraModel` sends the files to Claude and receives a
+4. `extractInfraModel` sends the files to the configured LLM and receives a
    schema-validated list of components and connections.
 5. `importModel` merges that into the database in one transaction; `undo`
    reverts the whole import.
 
-Selected file contents are sent to the Anthropic API. Do not import
+Selected file contents are sent to the configured LLM provider (Google or
+Anthropic). On Gemini's free tier Google may use submitted content to improve
+its products. Do not import
 repositories whose deployment descriptors you are not allowed to share.
 
 ## Layout
