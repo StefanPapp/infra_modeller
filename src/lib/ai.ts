@@ -3,7 +3,9 @@ import { google } from "@ai-sdk/google";
 import type { LanguageModel } from "ai";
 
 const DEFAULT_MODELS = {
-  google: "gemini-flash-latest",
+  // Pinned: the "gemini-flash-latest" alias was persistently overloaded (503s,
+  // 30 s stalls) on the free tier, while this model answered in under a second.
+  google: "gemini-2.5-flash",
   anthropic: "claude-sonnet-5-5",
 } as const;
 

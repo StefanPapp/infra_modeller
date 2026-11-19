@@ -38,7 +38,7 @@ reset on restart. Production requires `DATABASE_URL`.
 | `GOOGLE_GENERATIVE_AI_API_KEY` | one of the two | Gemini for chat and repository extraction (used when set) |
 | `ANTHROPIC_API_KEY` | one of the two | Claude, used when no Google key is set |
 | `AI_PROVIDER` | no | Force `google` or `anthropic` |
-| `GEMINI_MODEL` | no | Model override (default `gemini-flash-latest`) |
+| `GEMINI_MODEL` | no | Model override (default `gemini-2.5-flash`) |
 | `APP_PASSWORD` | production | Shared login password (HTTP Basic auth) |
 | `APP_USERNAME` | no | Login user name (default `admin`) |
 | `DATABASE_URL` | production | Postgres (Neon) connection string |
